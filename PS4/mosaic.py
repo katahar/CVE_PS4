@@ -187,7 +187,8 @@ else:
     imageC = cv2.imread("pittsburgh-center.jpg")
     imageR = cv2.imread("pittsburgh-right.jpg")
 
-result =cv2.copyMakeBorder(imageC,imageC.shape[0],imageC.shape[0],imageC.shape[1],imageC.shape[1], borderType=cv2.BORDER_CONSTANT,value=[0,0,0])
+result =cv2.copyMakeBorder(imageC,imageC.shape[0],imageC.shape[0],imageC.shape[1],imageC.shape[1], 
+                           borderType=cv2.BORDER_CONSTANT,value=[0,0,0])
 
 print(imageL.shape,imageC.shape,imageR.shape, result.shape)
 

@@ -45,7 +45,7 @@ def loadPick():
     pick = data["pick"]
     print(pick)
 
-def combine():
+def combine(idx):
     global result, imageC, imageL, imageR, pick
     (h,w) = imageC.shape[:2]
 
@@ -165,18 +165,34 @@ def mousePick(x, y, idx):
     #print(idx, x, y)
     pick[idx].append((x,y))
     dst = src.copy()
-    # red BGR color in OpenCV, you need to set to blue on left side
-    if idx < 2:
+    
+    if idx == 3:
         col = (0, 0, 255)
-    else:
-        col = (255, 0, 0)    # place circle on the picked point and text its serial (0-3)
+        cent_r_idx = 1
+        for i in range(len(pick[cent_r_idx])):
+            dst = cv2.circle(dst, pick[cent_r_idx][i], 5, col, 2)
+            dst = cv2.putText(dst, str(i), (pick[cent_r_idx][i][0]+10, pick[cent_r_idx][i][1]-10),
+                            cv2.FONT_HERSHEY_SIMPLEX,1, col, 1)
+            
 
-    for i in range(len(pick[idx])):
-        dst = cv2.circle(dst, pick[idx][i], 5, col, 2)
-        dst = cv2.putText(dst, str(i), (pick[idx][i][0]+10, pick[idx][i][1]-10),
-                          cv2.FONT_HERSHEY_SIMPLEX,1, col, 1)
-    # please make sure when idx == 3, you need to show red color circle in dst
-    # this example erases red circle
+        col = (255, 0, 0)    # place circle on the picked point and text its serial (0-3)
+        for i in range(len(pick[idx])):
+            dst = cv2.circle(dst, pick[idx][i], 5, col, 2)
+            dst = cv2.putText(dst, str(i), (pick[idx][i][0]+10, pick[idx][i][1]-10),
+                            cv2.FONT_HERSHEY_SIMPLEX,1, col, 1)
+    else:
+        # red BGR color in OpenCV, you need to set to blue on left side
+        if idx < 2:
+            col = (0, 0, 255)
+        else:
+            col = (255, 0, 0)    # place circle on the picked point and text its serial (0-3)
+
+        for i in range(len(pick[idx])):
+            dst = cv2.circle(dst, pick[idx][i], 5, col, 2)
+            dst = cv2.putText(dst, str(i), (pick[idx][i][0]+10, pick[idx][i][1]-10),
+                            cv2.FONT_HERSHEY_SIMPLEX,1, col, 1)
+        # please make sure when idx == 3, you need to show red color circle in dst
+        # this example erases red circle
 
     cv2.imshow(wn, dst)
     # to make sure image is updated
@@ -187,27 +203,27 @@ def mousePick(x, y, idx):
         if i == 'y' or i == 'Y':
             if idx >= 3:
                 savePick()
-                combine()
+                combine(idx)
             elif idx == 0:
                 print('center 4 points for right side')
                 cv2.setMouseCallback("center", center_click_r)
 
-                print("Saved pick array: \n\t")
-                print(pick)
+                # print("Saved pick array: \n\t")
+                # print(pick)
             elif idx == 1:
                 # picking left and center correspondence
                 savePick()
-                combine()
+                # combine(idx) #removed to fix indexing errors. No preview will be made after first two sets are complete
                 # you need to add pick code
                 print('left 4 points')
                 cv2.setMouseCallback("left", left_click) 
-                print("Saved oick array: \n\t")
-                print(pick)
+                # print("Saved oick array: \n\t")
+                # print(pick)
             elif idx == 2:
                 print('center 4 points for left side')
                 cv2.setMouseCallback("center", center_click_l)
-                print("Saved oick array: \n\t")
-                print(pick)
+                # print("Saved oick array: \n\t")
+                # print(pick)
         else:
             pick[idx] = []
             dst = src.copy()
