@@ -186,24 +186,31 @@ else:
     imageL = cv2.imread("pittsburgh-left.jpg")
     imageC = cv2.imread("pittsburgh-center.jpg")
     imageR = cv2.imread("pittsburgh-right.jpg")
+
 result =cv2.copyMakeBorder(imageC,imageC.shape[0],imageC.shape[0],imageC.shape[1],imageC.shape[1], borderType=cv2.BORDER_CONSTANT,value=[0,0,0])
+
 print(imageL.shape,imageC.shape,imageR.shape, result.shape)
+
 cv2.namedWindow("left",cv2.WINDOW_NORMAL)
 cv2.namedWindow("center",cv2.WINDOW_NORMAL)
 cv2.namedWindow("right",cv2.WINDOW_NORMAL)
 cv2.namedWindow("result",cv2.WINDOW_NORMAL)
+
 ln = imageL.copy()
 cn = imageC.copy()
 rn = imageR.copy()
+
 cv2.imshow("left", ln)
 cv2.imshow("center", cn)
 cv2.imshow("right", rn)
 cv2.imshow("result", result)
+
 pick = []
 pick.append([])
 pick.append([])
 pick.append([])
 pick.append([])
+
 print('use saved points? (y/n)')
 i = input()
 if i == 'y' or i == 'Y':

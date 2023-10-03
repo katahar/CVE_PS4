@@ -42,7 +42,6 @@ def loadPick():
     global pick
     with open('result.json') as file:
         data = json.load(file)
-
     pick = data["pick"]
     print(pick)
 
@@ -53,6 +52,9 @@ def combine():
     cng = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
     th, mask_c = cv2.threshold(cng, 1, 255, cv2.THRESH_BINARY)
     mask_c = mask_c / 255
+
+    # print("pick shape")
+    # print(np.shape(pick))
 
     # right
     src_pnts = np.empty([4,2], np.float32)
@@ -73,11 +75,11 @@ def combine():
     src_pnts = np.empty([4,2], np.float32)
     dst_pnts = np.empty([4,2], np.float32)
     for i in range(4):
-        src_pnts[i][0] = float(pick[0][i][0])
-        src_pnts[i][1] = float(pick[0][i][1])
-        dst_pnts[i][0] = float(pick[1][i][0]+w)
-        dst_pnts[i][1] = float(pick[1][i][1]+h)
-    M = np.identity(3)
+        src_pnts[i][0] = float(pick[2][i][0])
+        src_pnts[i][1] = float(pick[2][i][1])
+        dst_pnts[i][0] = float(pick[3][i][0]+w)
+        dst_pnts[i][1] = float(pick[3][i][1]+h)
+    M = cv2.getPerspectiveTransform(src_pnts, dst_pnts) #update?
     ln = cv2.warpPerspective(imageL, M, (w*3,h*3))
     lng = cv2.cvtColor(ln, cv2.COLOR_BGR2GRAY)
     th, mask_l = cv2.threshold(lng, 1, 255, cv2.THRESH_BINARY)
@@ -164,8 +166,11 @@ def mousePick(x, y, idx):
     pick[idx].append((x,y))
     dst = src.copy()
     # red BGR color in OpenCV, you need to set to blue on left side
-    col = (0, 0, 255)
-    # place circle on the picked point and text its serial (0-3)
+    if idx < 2:
+        col = (0, 0, 255)
+    else:
+        col = (255, 0, 0)    # place circle on the picked point and text its serial (0-3)
+
     for i in range(len(pick[idx])):
         dst = cv2.circle(dst, pick[idx][i], 5, col, 2)
         dst = cv2.putText(dst, str(i), (pick[idx][i][0]+10, pick[idx][i][1]-10),
@@ -187,10 +192,9 @@ def mousePick(x, y, idx):
                 print('center 4 points for right side')
                 cv2.setMouseCallback("center", center_click_r)
 
-                print("Saved oick array: \n\t")
+                print("Saved pick array: \n\t")
                 print(pick)
             elif idx == 1:
-                # only taking care of right and center, you need to replace 2 lines to start
                 # picking left and center correspondence
                 savePick()
                 combine()
@@ -204,14 +208,6 @@ def mousePick(x, y, idx):
                 cv2.setMouseCallback("center", center_click_l)
                 print("Saved oick array: \n\t")
                 print(pick)
-            # elif idx == 3:
-            #     # only taking care of right and center, you need to replace 2 lines to start
-            #     # picking left and center correspondence
-            #     savePick()
-            #     combine()
-            #     # you need to add pick code
-            #     #print('left 4 points')
-            #     #cv2.setMouseCallback("left", left_click) 
         else:
             pick[idx] = []
             dst = src.copy()
