@@ -1,3 +1,29 @@
+'''
+Multiple images can be merged into a single image by image Mosaicing. The process consists of three
+steps:
+    (1) detecting keypoints, and matching them,
+    (2) identifying bi-linear geometric transformations that match feature points, and
+    (3) blending transformed images together into a single image.
+Image Mosaicing is useful for many practical tasks including: stitching up multiple aerial images of a city
+into a single map (see Figure 1a), and stitching up multiple images taken from a drone into a single image
+(see Figure 1b).
+
+In this problem set, you are given a functioning demo code for stitching two images together. Your task is
+to understand how the code works and extend it to stitch three images
+
+Your final code should:
+    (1) read three images, image-left, image-center, and image-right (see Figures 2a, 2b, and 2c),
+    (2) prompt the user to specify four keypoints in the right image the ones that you use for stitching the
+    right and center images,
+    (3) prompt the user to specify four corresponding keypoints in the center image,
+    (4) prompt the user to specify four keypoints in the left image the ones that you use for stitching the left
+        and center images,
+    (5) prompt the user to specify four corresponding keypoints in the center image,
+    (6) stitch the three images into a single image using the Affine transformation, as shown in Figure 2d, and
+    (7) save the stitched image, image-stitched, as an image file.
+
+Note to self: be sure to run "conda activate cve" before running this file
+'''
 # import the necessary packages
 import cv2
 import numpy as np
@@ -44,6 +70,13 @@ def combine():
     mask_r = mask_r / 255
     
     # left image appears upper left corner, but it still works in blending.
+    src_pnts = np.empty([4,2], np.float32)
+    dst_pnts = np.empty([4,2], np.float32)
+    for i in range(4):
+        src_pnts[i][0] = float(pick[0][i][0])
+        src_pnts[i][1] = float(pick[0][i][1])
+        dst_pnts[i][0] = float(pick[1][i][0]+w)
+        dst_pnts[i][1] = float(pick[1][i][1]+h)
     M = np.identity(3)
     ln = cv2.warpPerspective(imageL, M, (w*3,h*3))
     lng = cv2.cvtColor(ln, cv2.COLOR_BGR2GRAY)
@@ -87,7 +120,7 @@ pick 4 points from left (blue point)
 '''
 def left_click(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONUP:
-        # add your code to select 4 points
+        mousePick(x, y, 2)
         pass
 
 '''
@@ -95,7 +128,7 @@ pick 4 points from center (correspond to left, blue point)
 '''
 def center_click_l(event, x, y, flags, param):
     if event == cv2.EVENT_LBUTTONUP:
-        # add your code to select 4 points
+        mousePick(x, y, 3)
         pass
 
 '''
@@ -118,7 +151,14 @@ def mousePick(x, y, idx):
         src = imageC
         dst = cn
         wn = "center"
-    # you need to add idx 2, 3 cases
+    elif idx == 2:
+        src = imageL
+        dst = ln
+        wn = "left"
+    elif idx == 3:
+        src = imageC
+        dst = cn
+        wn = "center"
 
     #print(idx, x, y)
     pick[idx].append((x,y))
@@ -144,16 +184,34 @@ def mousePick(x, y, idx):
                 savePick()
                 combine()
             elif idx == 0:
-                print('center 4 points')
+                print('center 4 points for right side')
                 cv2.setMouseCallback("center", center_click_r)
+
+                print("Saved oick array: \n\t")
+                print(pick)
             elif idx == 1:
                 # only taking care of right and center, you need to replace 2 lines to start
                 # picking left and center correspondence
                 savePick()
                 combine()
                 # you need to add pick code
-                #print('left 4 points')
-                #cv2.setMouseCallback("left", left_click)
+                print('left 4 points')
+                cv2.setMouseCallback("left", left_click) 
+                print("Saved oick array: \n\t")
+                print(pick)
+            elif idx == 2:
+                print('center 4 points for left side')
+                cv2.setMouseCallback("center", center_click_l)
+                print("Saved oick array: \n\t")
+                print(pick)
+            # elif idx == 3:
+            #     # only taking care of right and center, you need to replace 2 lines to start
+            #     # picking left and center correspondence
+            #     savePick()
+            #     combine()
+            #     # you need to add pick code
+            #     #print('left 4 points')
+            #     #cv2.setMouseCallback("left", left_click) 
         else:
             pick[idx] = []
             dst = src.copy()
